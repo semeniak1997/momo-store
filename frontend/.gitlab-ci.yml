@@ -1,13 +1,10 @@
 variables:
   VERSION: 1.0.${CI_PIPELINE_ID}
 
-cache:
-  paths:
-    - frontend/.npm/
-
 stages:
   - build
   - test
+  - release
 
 build-frontend-code-job:
   stage: build
@@ -46,10 +43,26 @@ sonarqube-frontend-sast:
       -Dsonar.sources=.
   needs:
     - build-frontend-code-job
-  image: sonarsource/sonar-scanner-cli:latest
+  image: sonarsource/sonar-scanner-cli:10.0
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
   cache:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
+
+upload-frontend-release:
+  stage: release
+  needs:
+    - build-frontend-code-job
+    - sonarqube-frontend-sast
+  variables:
+    GIT_STRATEGY: none
+  image:
+    name: gcr.io/go-containerregistry/crane:debug
+    entrypoint: [ "" ]
+  cache: [ ]
+  before_script:
+    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - crane tag $CI_REGISTRY_IMAGE/momo-store-frontend:$CI_COMMIT_SHA $CI_COMMIT_SHA
