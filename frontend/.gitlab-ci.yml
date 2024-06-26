@@ -5,6 +5,7 @@ stages:
   - build
   - test
   - release
+  - deploy
 
 build-frontend-code-job:
   stage: build
@@ -66,3 +67,32 @@ upload-frontend-release:
     - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - crane tag $CI_REGISTRY_IMAGE/momo-store-frontend:$CI_COMMIT_SHA $CI_COMMIT_SHA
+    - crane tag $CI_REGISTRY_IMAGE/momo-store-frontend:$CI_COMMIT_SHA $CI_COMMIT_SHA
+
+deploy-frontend-release:
+  stage: deploy
+  needs:
+    - upload-frontend-release
+  image: dtzar/helm-kubectl:3.15.2
+  before_script:  
+      - mkdir ~/.kube
+      - touch ~/.kube/config; touch ~/.kube/ca.pem
+      - echo "$KUBE_CONFIG" >> ~/.kube/config  
+      - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
+      - kubectl config use-context default
+  script:
+      - envsubst < ./helm/frontend/values.yaml > ./helm/frontend/values_fill.yaml
+      - envsubst < ./helm/frontend/Chart.yaml > ./helm/frontend/Chart_fill.yaml
+      - envsubst < ./helm/frontend/templates/secrets.yaml > ./helm/frontend/templates/secrets_fill.yaml
+      - mv ./helm/frontend/values_fill.yaml ./helm/frontend/values.yaml
+      - mv ./helm/frontend/Chart_fill.yaml ./helm/frontend/Chart.yaml
+      - mv ./helm/frontend/templates/secrets_fill.yaml ./helm/frontend/templates/secrets.yaml
+      - helm upgrade --install frontend ./helm/frontend/
+      - rm ~/.kube/config
+      - rm ~/.kube/ca.pem
+      - echo "frontend is deployed via helm"
+  environment:
+      name: review/$CI_COMMIT_REF_NAME
+      url: https://std-025-02-momo-store.ru
+  rules: 
+      - when: manual
