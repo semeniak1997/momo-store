@@ -1,0 +1,7 @@
+---
+apiVersion: v2
+name: frontend
+description: Frontend Momo Store Helm Chart
+type: application
+version: 1.0.0
+appVersion: ${CI_COMMIT_SHA}

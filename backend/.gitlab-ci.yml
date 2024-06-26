@@ -1,0 +1,109 @@
+variables:
+  VERSION: 1.0.${CI_PIPELINE_ID}
+
+stages:
+  - build
+  - test
+  - release
+  - deploy
+
+build-backend-code-job:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}/backend"
+      --dockerfile "${CI_PROJECT_DIR}/backend/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/momo-store-backend:$CI_COMMIT_SHA"
+      --build-arg VERSION=$VERSION
+      --cache=true  
+
+include:
+  - template: Security/SAST.gitlab-ci.yml 
+
+spotbugs-sast:
+  stage: test
+  artifacts:
+    reports:
+       sast: gl-sast-report.json
+
+test-backend:
+  stage: test
+  image: golang:1.22.4-alpine
+  script:
+    - cd backend
+    - go test -v ./...
+  only:
+    changes:
+      - backend/**/*
+  dependencies:
+    - build-backend-code-job
+
+sonarqube-backend-sast:
+  stage: test
+  script: 
+    - >
+      cd backend
+
+      sonar-scanner
+      -Dsonar.projectKey=${SONAR_PROJECT_KEY_MOMO_BACK}
+      -Dsonar.host.url=${SONARQUBE_URL}
+      -Dsonar.login=${SONAR_LOGIN_MOMO_BACK}
+      -Dsonar.projectName=${SONAR_POJECT_NAME_MOMO_BACK}
+      -Dsonar.sources=.
+  needs:
+    - build-backend-code-job
+  image: sonarsource/sonar-scanner-cli:10.0
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+
+upload-backend-release:
+  stage: release
+  needs:
+    - build-backend-code-job
+    - sonarqube-backend-sast
+  variables:
+    GIT_STRATEGY: none
+  image:
+    name: gcr.io/go-containerregistry/crane:debug
+    entrypoint: [ "" ]
+  cache: [ ]
+  before_script:
+    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - crane tag $CI_REGISTRY_IMAGE/momo-store-backend:$CI_COMMIT_SHA $CI_COMMIT_SHA
+    - crane tag $CI_REGISTRY_IMAGE/momo-store-backend:$CI_COMMIT_SHA $CI_COMMIT_SHA
+
+deploy-backend-release:
+  stage: deploy
+  needs:
+    - upload-backend-release
+  image: dtzar/helm-kubectl:3.15.2
+  before_script:  
+      - mkdir ~/.kube
+      - touch ~/.kube/config; touch ~/.kube/ca.pem
+      - echo "$KUBE_CONFIG" >> ~/.kube/config  
+      - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
+      - kubectl config use-context default
+  script:
+      - envsubst < ./helm/backend/values.yaml > ./helm/backend/values_fill.yaml
+      - envsubst < ./helm/backend/Chart.yaml > ./helm/backend/Chart_fill.yaml
+      - envsubst < ./helm/backend/templates/secrets.yaml > ./helm/backend/templates/secrets_fill.yaml
+      - mv ./helm/backend/values_fill.yaml ./helm/backend/values.yaml
+      - mv ./helm/backend/Chart_fill.yaml ./helm/backend/Chart.yaml
+      - mv ./helm/backend/templates/secrets_fill.yaml ./helm/backend/templates/secrets.yaml
+      - helm upgrade --install backend ./helm/backend/
+      - rm ~/.kube/config
+      - rm ~/.kube/ca.pem
+      - echo "backend is deployed via helm"
+  environment:
+      name: review/$CI_COMMIT_REF_NAME
+      url: https://std-025-02-momo-store.ru
+  rules: 
+      - when: manual
