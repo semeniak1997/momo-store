@@ -73,10 +73,12 @@ deploy-frontend-release:
   needs:
     - upload-frontend-release
   image: dtzar/helm-kubectl:3.15.2
-  before_script:
-        - echo "$KUBE_CONFIG" >> ~/.kube/config  
-        - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
-        - kubectl config use-context default
+  before_script:  
+      - mkdir ~/.kube
+      - touch ~/.kube/config; touch ~/.kube/ca.pem
+      - echo "$KUBE_CONFIG" >> ~/.kube/config  
+      - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
+      - kubectl config use-context default
   script:
       - envsubst < ./helm/frontend/values.yaml > ./helm/frontend/values_fill.yaml
       - envsubst < ./helm/frontend/Chart.yaml > ./helm/frontend/Chart_fill.yaml
