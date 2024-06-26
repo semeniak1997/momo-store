@@ -83,9 +83,9 @@ deploy-frontend-release:
       - envsubst < ./helm/frontend/values.yaml > ./helm/frontend/values_fill.yaml
       - envsubst < ./helm/frontend/Chart.yaml > ./helm/frontend/Chart_fill.yaml
       - envsubst < ./helm/frontend/templates/secrets.yaml > ./helm/frontend/templates/secrets_fill.yaml
-      - rm ./helm/frontend/values.yaml
-      - rm ./helm/frontend/Chart.yaml
-      - rm ./helm/frontend/templates/secrets.yaml
+      - mv ./helm/frontend/values_fill.yaml ./helm/frontend/values.yaml
+      - mv ./helm/frontend/Chart_fill.yaml ./helm/frontend/Chart.yaml
+      - mv ./helm/frontend/templates/secrets_fill.yaml ./helm/frontend/templates/secrets.yaml
       - helm upgrade --install frontend ./helm/frontend/
       - rm ~/.kube/config
       - rm ~/.kube/ca.pem
