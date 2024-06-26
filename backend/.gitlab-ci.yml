@@ -5,6 +5,7 @@ stages:
   - build
   - test
   - release
+  - deploy
 
 build-backend-code-job:
   stage: build
@@ -77,3 +78,31 @@ upload-backend-release:
     - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - crane tag $CI_REGISTRY_IMAGE/momo-store-backend:$CI_COMMIT_SHA $CI_COMMIT_SHA
+
+deploy-backend-release:
+  stage: deploy
+  needs:
+    - upload-backend-release
+  image: dtzar/helm-kubectl:3.15.2
+  before_script:  
+      - mkdir ~/.kube
+      - touch ~/.kube/config; touch ~/.kube/ca.pem
+      - echo "$KUBE_CONFIG" >> ~/.kube/config  
+      - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
+      - kubectl config use-context default
+  script:
+      - envsubst < ./helm/backend/values.yaml > ./helm/backend/values_fill.yaml
+      - envsubst < ./helm/backend/Chart.yaml > ./helm/backend/Chart_fill.yaml
+      - envsubst < ./helm/backend/templates/secrets.yaml > ./helm/backend/templates/secrets_fill.yaml
+      - mv ./helm/backend/values_fill.yaml ./helm/backend/values.yaml
+      - mv ./helm/backend/Chart_fill.yaml ./helm/backend/Chart.yaml
+      - mv ./helm/backend/templates/secrets_fill.yaml ./helm/backend/templates/secrets.yaml
+      - helm upgrade --install backend ./helm/backend/
+      - rm ~/.kube/config
+      - rm ~/.kube/ca.pem
+      - echo "backend is deployed via helm"
+  environment:
+      name: review/$CI_COMMIT_REF_NAME
+      url: https://std-025-02-momo-store.ru
+  rules: 
+      - when: manual
