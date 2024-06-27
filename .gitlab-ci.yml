@@ -7,9 +7,13 @@ frontend:
     include:
       - '/frontend/.gitlab-ci.yml'
     strategy: depend
-  only: 
-    changes:
-      - frontend/**/*
+  rules:
+    - changes:
+        - frontend/**/* 
+      when: always           
+    - changes:
+        - helm/frontend/**/*
+      when: always
 
 backend:
   stage: module-pipelines
@@ -17,6 +21,10 @@ backend:
     include:
       - '/backend/.gitlab-ci.yml'
     strategy: depend
-  only: 
-    changes:
-      - backend/**/*
+  rules:
+    - changes:
+        - backend/**/*
+      when: always           
+    - changes:
+        - helm/backend/**/*
+      when: always
