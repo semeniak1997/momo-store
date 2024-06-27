@@ -25,6 +25,10 @@ spec:
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   template:
     metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8081"
+        prometheus.io/scrape: "true"
       labels:
         app: {{ .Chart.Name }}
     spec:
