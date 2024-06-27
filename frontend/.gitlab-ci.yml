@@ -87,7 +87,7 @@ deploy-frontend-release:
       - mv ./helm/frontend/values_fill.yaml ./helm/frontend/values.yaml
       - mv ./helm/frontend/Chart_fill.yaml ./helm/frontend/Chart.yaml
       - mv ./helm/frontend/templates/secrets_fill.yaml ./helm/frontend/templates/secrets.yaml
-      - helm upgrade --install frontend ./helm/frontend/
+      - helm upgrade --atomic --install frontend ./helm/frontend/
       - rm ~/.kube/config
       - rm ~/.kube/ca.pem
       - echo "frontend is deployed via helm"

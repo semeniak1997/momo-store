@@ -98,7 +98,7 @@ deploy-backend-release:
       - mv ./helm/backend/values_fill.yaml ./helm/backend/values.yaml
       - mv ./helm/backend/Chart_fill.yaml ./helm/backend/Chart.yaml
       - mv ./helm/backend/templates/secrets_fill.yaml ./helm/backend/templates/secrets.yaml
-      - helm upgrade --install backend ./helm/backend/
+      - helm upgrade --atomic --install backend ./helm/backend/
       - rm ~/.kube/config
       - rm ~/.kube/ca.pem
       - echo "backend is deployed via helm"
