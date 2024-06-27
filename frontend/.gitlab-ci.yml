@@ -67,7 +67,6 @@ upload-frontend-release:
     - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - crane tag $CI_REGISTRY_IMAGE/momo-store-frontend:$CI_COMMIT_SHA $CI_COMMIT_SHA
-    - crane tag $CI_REGISTRY_IMAGE/momo-store-frontend:$CI_COMMIT_SHA $CI_COMMIT_SHA
 
 deploy-frontend-release:
   stage: deploy
@@ -87,7 +86,7 @@ deploy-frontend-release:
       - mv ./helm/frontend/values_fill.yaml ./helm/frontend/values.yaml
       - mv ./helm/frontend/Chart_fill.yaml ./helm/frontend/Chart.yaml
       - mv ./helm/frontend/templates/secrets_fill.yaml ./helm/frontend/templates/secrets.yaml
-      - helm upgrade --install frontend ./helm/frontend/
+      - helm upgrade --atomic --install frontend ./helm/frontend/
       - rm ~/.kube/config
       - rm ~/.kube/ca.pem
       - echo "frontend is deployed via helm"

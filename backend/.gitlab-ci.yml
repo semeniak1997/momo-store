@@ -78,7 +78,6 @@ upload-backend-release:
     - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - crane tag $CI_REGISTRY_IMAGE/momo-store-backend:$CI_COMMIT_SHA $CI_COMMIT_SHA
-    - crane tag $CI_REGISTRY_IMAGE/momo-store-backend:$CI_COMMIT_SHA $CI_COMMIT_SHA
 
 deploy-backend-release:
   stage: deploy
@@ -98,7 +97,7 @@ deploy-backend-release:
       - mv ./helm/backend/values_fill.yaml ./helm/backend/values.yaml
       - mv ./helm/backend/Chart_fill.yaml ./helm/backend/Chart.yaml
       - mv ./helm/backend/templates/secrets_fill.yaml ./helm/backend/templates/secrets.yaml
-      - helm upgrade --install backend ./helm/backend/
+      - helm upgrade --atomic --install backend ./helm/backend/
       - rm ~/.kube/config
       - rm ~/.kube/ca.pem
       - echo "backend is deployed via helm"
