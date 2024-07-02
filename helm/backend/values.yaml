@@ -10,9 +10,6 @@ rollingUpdate:
   maxUnavailable: 2
   maxSurge: 20%
 containerPort: 8081
-prometheus:
-  prometheus_io_path: /metrics
-  prometheus_io_port: "8081"
-  prometheus_io_scrape: "true"
+
 
 
