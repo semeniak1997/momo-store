@@ -42,11 +42,11 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: http
+              port: 8081
           readinessProbe:
             httpGet:
               path: /health
-              port: http
+              port: 8081
             initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 10
