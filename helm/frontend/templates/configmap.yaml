@@ -17,15 +17,15 @@ data:
         text/css css;
       }
       server {
-        listen {{ .Values.containerPort }};
-
+        listen 80;
+      
         location ~* \.css$ {
           add_header Content-Type text/css;
         }
-      
+
         location / {
           root   /usr/share/nginx/html;
-          index  index.html index.html;
+          index  index.html;
           try_files $uri $uri/ /index.html;
         }
       
