@@ -26,9 +26,9 @@ spec:
   template:
     metadata:
       annotations:
-        prometheus.io/path: /metrics
-        prometheus.io/port: "8081"
-        prometheus.io/scrape: "true"
+        prometheus.io/path: {{ .Values.template.metadata.annotations.prometheus.io/path}}
+        prometheus.io/port: {{ .Values.template.metadata.annotations.prometheus.io/port}}
+        prometheus.io/scrape: {{ .Values.template.metadata.annotations.prometheus.io/scrape}}
       labels:
         app: {{ .Chart.Name }}
     spec:
