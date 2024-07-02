@@ -13,8 +13,8 @@ containerPort: 8081
 template:
     metadata:
       annotations:
-        prometheus.io/path: "/metrics"
-        prometheus.io/port: "8081"
-        prometheus.io/scrape: "true"
+        prometheus_io_path: /metrics
+        prometheus_io_port: "8081"
+        prometheus_io_scrape: "true"
 
 
