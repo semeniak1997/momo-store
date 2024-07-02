@@ -11,8 +11,17 @@ data:
       worker_connections  1024;
     }
     http {
+      include /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+      types {
+        text/css css;
+      }
       server {
         listen {{ .Values.containerPort }};
+
+        location ~* \.css$ {
+          add_header Content-Type text/css;
+        }
       
         location / {
           root   /usr/share/nginx/html;
