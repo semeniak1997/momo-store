@@ -14,38 +14,12 @@ spec:
     - host: {{ .Values.host }}
       http:
         paths:
-        - path: /products
+{{- range $path := .Values.paths }}
+        - path: {{ $path }}
           pathType: Prefix
           backend:
             service:
-              name: {{ .Chart.Name }}
+              name: {{ $.Chart.Name }}
               port:
-                number: {{ .Values.containerPort }}
-        - path: /categories
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Chart.Name }}
-              port:
-                number: {{ .Values.containerPort }}
-        - path: /orders
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Chart.Name }}
-              port:
-                number: {{ .Values.containerPort }}
-        - path: /metrics
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Chart.Name }}
-              port:
-                number: {{ .Values.containerPort }}
-        - path: /auth/whoami
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Chart.Name }}
-              port:
-                number: {{ .Values.containerPort }}
+                number: {{ $.Values.containerPort }}
+{{- end }}

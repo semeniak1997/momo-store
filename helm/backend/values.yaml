@@ -18,3 +18,9 @@ resources:
     cpu: "0.1"  
     memory: "256Mi"
 host: std-025-02-momo-store.ru
+paths:
+  - /products
+  - /categories
+  - /orders
+  - /metrics
+  - /auth/whoami
