@@ -39,8 +39,5 @@ data:
             root   /usr/share/nginx/html;
         }
         
-        location ~ ^/(?:products|categories|orders|metrics|auth/whoami) {
-            proxy_pass http://backend:8081;
-        }
       }
     }
