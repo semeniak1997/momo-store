@@ -91,7 +91,8 @@ deploy-backend-release:
     - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
     - kubectl config use-context default
   script:
-    - helm upgrade --atomic --install backend ./helm/backend/ \
+    - >
+      helm upgrade --atomic --install backend ./helm/backend/ \
         --set image.repository=${CI_REGISTRY_IMAGE}/momo-store-backend \
         --set dockerconfigjson=${DOCKER_CONFIG_JSON} \
         --set appVersion=${CI_COMMIT_SHA} \
