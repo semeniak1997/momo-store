@@ -91,13 +91,11 @@ deploy-backend-release:
       - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
       - kubectl config use-context default
   script:
-      - envsubst < ./helm/backend/values.yaml > ./helm/backend/values_fill.yaml
-      - envsubst < ./helm/backend/Chart.yaml > ./helm/backend/Chart_fill.yaml
-      - envsubst < ./helm/backend/templates/secrets.yaml > ./helm/backend/templates/secrets_fill.yaml
-      - mv ./helm/backend/values_fill.yaml ./helm/backend/values.yaml
-      - mv ./helm/backend/Chart_fill.yaml ./helm/backend/Chart.yaml
-      - mv ./helm/backend/templates/secrets_fill.yaml ./helm/backend/templates/secrets.yaml
-      - helm upgrade --atomic --install backend ./helm/backend/
+      - helm upgrade --atomic --install backend ./helm/backend/ \
+          --set image.repository=${CI_REGISTRY_IMAGE}/momo-store-backend \
+          --set image.tag=${CI_COMMIT_SHA} \
+          --set appVersion=${CI_COMMIT_SHA} \
+          --set dockerconfigjson=${DOCKER_CONFIG_JSON}
       - rm ~/.kube/config
       - rm ~/.kube/ca.pem
       - echo "backend is deployed via helm"
