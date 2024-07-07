@@ -35,6 +35,18 @@ spec:
           ports:
             - name: {{ .Chart.Name }} 
               containerPort: {{ .Values.containerPort }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.containerPort }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 6
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           volumeMounts:

@@ -42,13 +42,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 8081
+              port: {{ .Values.containerPort }}
           readinessProbe:
             httpGet:
               path: /health
-              port: 8081
-            initialDelaySeconds: 15
-            periodSeconds: 30
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 6
           resources:
