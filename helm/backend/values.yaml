@@ -24,3 +24,4 @@ paths:
   - /orders
   - /metrics
   - /auth/whoami
+dockerconfigjson: ${DOCKER_CONFIG_JSON}
