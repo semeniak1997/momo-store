@@ -4,4 +4,4 @@ name: frontend
 description: Frontend Momo Store Helm Chart
 type: application
 version: 1.0.0
-appVersion: ${CI_COMMIT_SHA}
+appVersion: 1.0.0

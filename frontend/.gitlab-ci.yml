@@ -74,25 +74,23 @@ deploy-frontend-release:
     - upload-frontend-release
   image: dtzar/helm-kubectl:3.15.2
   before_script:  
-      - mkdir ~/.kube
-      - touch ~/.kube/config; touch ~/.kube/ca.pem
-      - echo "$KUBE_CONFIG" >> ~/.kube/config  
-      - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
-      - kubectl config use-context default
+    - mkdir ~/.kube
+    - touch ~/.kube/config; touch ~/.kube/ca.pem
+    - echo "$KUBE_CONFIG" >> ~/.kube/config  
+    - echo "$KUBE_CONFIG_CA_PEM" >> ~/.kube/ca.pem
+    - kubectl config use-context default
   script:
-      - envsubst < ./helm/frontend/values.yaml > ./helm/frontend/values_fill.yaml
-      - envsubst < ./helm/frontend/Chart.yaml > ./helm/frontend/Chart_fill.yaml
-      - envsubst < ./helm/frontend/templates/secrets.yaml > ./helm/frontend/templates/secrets_fill.yaml
-      - mv ./helm/frontend/values_fill.yaml ./helm/frontend/values.yaml
-      - mv ./helm/frontend/Chart_fill.yaml ./helm/frontend/Chart.yaml
-      - mv ./helm/frontend/templates/secrets_fill.yaml ./helm/frontend/templates/secrets.yaml
-      - helm upgrade --atomic --install frontend ./helm/frontend/
-      - rm ~/.kube/config
-      - rm ~/.kube/ca.pem
-      - echo "frontend is deployed via helm"
+    - >
+      helm upgrade --atomic --install frontend ./helm/frontend/ \
+        --set image.repository=${CI_REGISTRY_IMAGE}/momo-store-frontend \
+        --set dockerconfigjson=${DOCKER_CONFIG_JSON} \
+        --set image.tag=${CI_COMMIT_SHA}
+    - rm ~/.kube/config
+    - rm ~/.kube/ca.pem
+    - echo "frontend is deployed via helm"
   environment:
-      name: review/$CI_COMMIT_REF_NAME
-      url: https://std-025-02-momo-store.ru
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://std-025-02-momo-store.ru
   rules: 
-      - when: manual
+    - when: manual
 

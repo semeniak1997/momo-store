@@ -8,3 +8,11 @@ strategy:
   type: RollingUpdate
 containerPort: 80
 host: std-025-02-momo-store.ru
+resources:
+  limits:
+    cpu: "0.2"  
+    memory: "1Gi" 
+  requests:
+    cpu: "0.1"  
+    memory: "256Mi"
+dockerconfigjson: ${DOCKER_CONFIG_JSON}
