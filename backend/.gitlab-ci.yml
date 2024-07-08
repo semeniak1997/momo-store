@@ -102,7 +102,7 @@ deploy-backend-release-prod:
     - echo "backend is deployed to prod via helm"
   rules: 
     - if: '$CI_COMMIT_BRANCH == "master"'
-    - when: manual
+      when: manual
 
 deploy-backend-release-dev:
   stage: deploy
@@ -127,4 +127,4 @@ deploy-backend-release-dev:
     - echo "backend is deployed to dev via helm"
   rules: 
     - if: '$CI_COMMIT_BRANCH != "master"'
-    - when: manual
+      when: manual
