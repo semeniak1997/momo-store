@@ -121,7 +121,8 @@ deploy-backend-release-dev:
         --namespace dev \
         --set image.repository=${CI_REGISTRY_IMAGE}/momo-store-backend \
         --set dockerconfigjson=${DOCKER_CONFIG_JSON} \
-        --set image.tag=${CI_COMMIT_SHA}
+        --set image.tag=${CI_COMMIT_SHA} \
+        --set host="localhost"
     - rm ~/.kube/config
     - rm ~/.kube/ca.pem
     - echo "backend is deployed to dev via helm"
